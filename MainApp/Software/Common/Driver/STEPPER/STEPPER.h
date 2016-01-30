@@ -1,7 +1,7 @@
  #define REACH_END_STOP 0x1
  #define END_MOVEMENT 0x2
  #define TIME_OUT 0x4
- #define MOVING 0x7
+ #define MOVING 0x8
  
  PUBLIC void STEPPER_INITIALIZE(void);
  PUBLIC void STEPPER_MANAGE(unsigned char MotorId);

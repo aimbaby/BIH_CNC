@@ -12,6 +12,7 @@ unsigned char FAILURES[MAX_NB_STEPPERS];
 
 PUBLIC void MECHANISM_INITIALIZE(void)
 {
+ STEPPER_INITIALIZE();
  memset(FAILURES , 0 , MAX_NB_STEPPERS * sizeof(unsigned char));
  memset(CURRENT_DISPLACEMENT , DISP_UNKNOWN , MAX_NB_STEPPERS * sizeof(unsigned short));
 }
@@ -37,4 +38,13 @@ PUBLIC unsigned short MECHANISM_GET_POSITION(unsigned char MechanismId)
 PUBLIC unsigned char MECHANISM_CHECK_FAILURE(unsigned char MechanismId)
 {
  return( 0 ) ;
+}
+PUBLIC void MECHANISM_MANAGE(unsigned char MechanismId)
+{
+ STEPPER_MANAGE(MechanismId);
+ if(((STEPPER_STATUS(MechanismId) & END_MOVEMENT) == END_MOVEMENT)
+ && ((STEPPER_STATUS(MechanismId) & REACH_END_STOP) == REACH_END_STOP ))
+ {
+  STEPPER_STOP_MOVEMENT(MechanismId);
+ }
 }
