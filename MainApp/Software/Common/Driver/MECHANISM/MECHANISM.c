@@ -23,10 +23,10 @@ PUBLIC void MECHANISM_CALIBRATE(unsigned char MechanismId)
 }
 PUBLIC void MECHANISM_MOVE(unsigned char MechanismId , unsigned short Distance)
 {
- signed short Angle;
- Angle = (signed short)CURRENT_DISPLACEMENT[MechanismId]-(signed short)Distance;
- Angle *= (signed short)ANGLE_PER_MILLIM;
- STEPPER_MOVE_ANGLE(MechanismId,Angle);
+ signed long s32Angle;
+ s32Angle = (signed long)CURRENT_DISPLACEMENT[MechanismId]-(signed long)Distance;
+ s32Angle *= (signed long)ANGLE_PER_MILLIM;
+ STEPPER_MOVE_ANGLE(MechanismId,s32Angle);
  CURRENT_DISPLACEMENT[MechanismId]= Distance;
 }
 PUBLIC unsigned short MECHANISM_GET_POSITION(unsigned char MechanismId)
