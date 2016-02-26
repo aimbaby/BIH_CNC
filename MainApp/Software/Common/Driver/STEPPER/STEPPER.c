@@ -9,7 +9,7 @@
  #define START_VALUE 0x9
 
  unsigned char STEPPER_SEQUENCE[(MAX_NB_STEPPERS)];
- signed short STEPPER_ANGLE[MAX_NB_STEPPERS];
+ signed long STEPPER_ANGLE[MAX_NB_STEPPERS];
  unsigned short STEPPER_MOVE_TIME[MAX_NB_STEPPERS];
  unsigned char STEPPER_INDEX[MAX_NB_STEPPERS];
  const STEPPER_CONFIG STEPPER_CONFIGS[MAX_NB_STEPPERS] = STEPPER_CONFIG_ARRAY;
@@ -40,7 +40,7 @@
 PUBLIC void STEPPER_INITIALIZE(void)
 {
    memset(STEPPER_SEQUENCE, START_VALUE, MAX_NB_STEPPERS*sizeof(unsigned char));
-   memset(STEPPER_ANGLE, 0 , MAX_NB_STEPPERS * sizeof (signed short));
+   memset(STEPPER_ANGLE, 0 , MAX_NB_STEPPERS * sizeof (signed long));
    memset(STEPPER_STATE, STP_STOPPED , MAX_NB_STEPPERS * sizeof(STEPPER_SM));
    memset(STEPPER_INDEX, 0, MAX_NB_STEPPERS * sizeof(unsigned char));
    memset(STEPPER_MOVE_TIME, 0, MAX_NB_STEPPERS * sizeof(STEPPER_CONFIG));
@@ -166,9 +166,9 @@ PUBLIC void STEPPER_STALL(unsigned char MotorId,unsigned char direction)
  }
 }
 
-PUBLIC void STEPPER_MOVE_ANGLE(unsigned char MotorId,signed short s16Angle)
+PUBLIC void STEPPER_MOVE_ANGLE(unsigned char MotorId,signed long s32Angle)
 {
- STEPPER_ANGLE[MotorId] += s16Angle ;
+ STEPPER_ANGLE[MotorId] += s32Angle ;
 }
 PUBLIC signed short STEPPER_GET_ANGLE(unsigned char MotorId)
 {
