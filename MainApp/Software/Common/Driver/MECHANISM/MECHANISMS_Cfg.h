@@ -1,1 +1,1 @@
-#define ANGLE_PER_MILLIM 1
+#define ANGLE_PER_MILLIM 514
