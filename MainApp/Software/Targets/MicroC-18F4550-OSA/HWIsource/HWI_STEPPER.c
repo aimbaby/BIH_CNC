@@ -9,11 +9,11 @@ PUBLIC void HWI_STEPPER_WRITE(unsigned char MotorId,unsigned char value)
 {
  if(MotorId == 0)
  {
-  portd = (portd & 0xF0) | value;
+  portd = (LATD & 0xF0) | value;
  }
  if(MotorId == 1)
  {
-  portd = (portd & 0x0F) | (value << 4);
+  portd = (LATD & 0x0F) | (value << 4);
  }
 }
 PUBLIC void HWI_STEPPER_READ(unsigned char MotorId, unsigned char value)
