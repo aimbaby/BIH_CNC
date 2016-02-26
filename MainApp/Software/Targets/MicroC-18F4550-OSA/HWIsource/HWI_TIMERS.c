@@ -8,10 +8,10 @@
 PUBLIC void HWI_TIMERS_INTITALIZE(void)
 {
     INTCON = 0b11100000;
-    T0CON =0b11011111;
+    T0CON =0b11010001; //1:4 => 1.024 ms tick
     T1CON =0b10000101;
     T3CON =0b10011101;
-    tmr0l=10;
+    tmr0l=0;
 
 
     TMR1IF_bit=0;
@@ -36,7 +36,7 @@ void interrupt (void)
   if(TMR0if_bit)
   {
    tmr0if_bit=0;
-   tmr0l=10;
+   tmr0l=0;
    OS_Timer();
   }
   if(tmr3if_bit)
