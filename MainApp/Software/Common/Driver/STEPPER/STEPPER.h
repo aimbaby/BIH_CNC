@@ -1,3 +1,5 @@
+ #include "STEPPERS_Cfg.h"
+
  #define REACH_END_STOP 0x1
  #define END_MOVEMENT 0x2
  #define TIME_OUT 0x4
@@ -5,6 +7,9 @@
  
  PUBLIC void STEPPER_INITIALIZE(void);
  PUBLIC void STEPPER_MANAGE(unsigned char MotorId);
+ #ifdef STEPPER_FAST_MOTOR
+ PUBLIC void STEPPER_FAST_EQUENCE(unsigned char MotorId);
+ #endif
  PUBLIC void STEPPER_MOVE_ANGLE(unsigned char MotorId , signed long s32Angle);
  PUBLIC signed short STEPPER_GET_ANGLE(unsigned char MotorId);
  PUBLIC void STEPPER_STOP_MOVEMENT(unsigned char MotorId);
