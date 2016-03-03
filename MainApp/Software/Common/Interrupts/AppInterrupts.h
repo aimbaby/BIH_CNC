@@ -1,1 +1,1 @@
-PUBLIC void ISR1(void);
+PUBLIC void APP_ISR1(void);
