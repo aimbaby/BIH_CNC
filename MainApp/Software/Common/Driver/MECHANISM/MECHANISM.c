@@ -18,7 +18,7 @@ PUBLIC void MECHANISM_INITIALIZE(void)
 }
 PUBLIC void MECHANISM_CALIBRATE(unsigned char MechanismId)
 {
- STEPPER_STALL(MechanismId,0); // stall min
+ STEPPER_STALL(MechanismId,1); // stall min
  CURRENT_DISPLACEMENT[MechanismId] = 0;
 }
 PUBLIC void MECHANISM_MOVE(unsigned char MechanismId , unsigned short Distance)
@@ -41,7 +41,6 @@ PUBLIC unsigned char MECHANISM_CHECK_FAILURE(unsigned char MechanismId)
 }
 PUBLIC void MECHANISM_MANAGE(unsigned char MechanismId)
 {
- STEPPER_MANAGE(MechanismId);
  if(((STEPPER_STATUS(MechanismId) & END_MOVEMENT) == END_MOVEMENT)
  && ((STEPPER_STATUS(MechanismId) & REACH_END_STOP) == REACH_END_STOP ))
  {
