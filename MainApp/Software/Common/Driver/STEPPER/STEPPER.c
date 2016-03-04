@@ -7,48 +7,31 @@
  #define STOP_VALUE 0xF
  #define START_VALUE 0x9
 
-#ifdef STEPPER_FAST_MOTOR
- unsigned char STEPPER_FLAGS[MAX_NB_STEPPERS]; /* 0 =stopped , 1 = CW ,2 = CCW */
- unsigned long STEPPER_STEPS[MAX_NB_STEPPERS];
- #else
-  unsigned char STEPPER_INDEX[MAX_NB_STEPPERS];
- #endif
+ unsigned char STEPPER_INDEX[MAX_NB_STEPPERS];
  unsigned char STEPPER_SEQUENCE[(MAX_NB_STEPPERS)];
- signed long STEPPER_ANGLE[MAX_NB_STEPPERS];
+ volatile signed long STEPPER_ANGLE[MAX_NB_STEPPERS];
  unsigned short STEPPER_MOVE_TIME[MAX_NB_STEPPERS];
  const STEPPER_CONFIG STEPPER_CONFIGS[MAX_NB_STEPPERS] = STEPPER_CONFIG_ARRAY;
  STEPPER_SM STEPPER_STATE[MAX_NB_STEPPERS];
  
   void SEQUENCE_CW(unsigned char MotorId)
  {
-  #ifdef STEPPER_FAST_MOTOR
-  STEPPER_FLAGS[MotorId] = 1;
-  #else
   STEPPER_SEQUENCE[MotorId] =
       0xF & ((STEPPER_SEQUENCE[MotorId] << 1)|(STEPPER_SEQUENCE[MotorId] >> 3));
   HWI_STEPPER_WRITE(MotorId,STEPPER_SEQUENCE[MotorId]);
-  #endif
  }
 
 
  void SEQUENCE_CCW(unsigned char MotorId)
  {
-  #ifdef STEPPER_FAST_MOTOR
-  STEPPER_FLAGS[MotorId] = 2;
-  #else
   STEPPER_SEQUENCE[MotorId] =
      0x0F & ((STEPPER_SEQUENCE[MotorId] >> 1)|(STEPPER_SEQUENCE[MotorId] << 3));
   HWI_STEPPER_WRITE(MotorId,STEPPER_SEQUENCE[MotorId]);
-  #endif
  }
 
  void SEQUENCE_STOP(unsigned char MotorId)
  {
-  #ifdef STEPPER_FAST_MOTOR
-  STEPPER_FLAGS[MotorId] = 0;
-  #else
   HWI_STEPPER_WRITE(MotorId,STOP_VALUE);
-  #endif
  }
  
  
@@ -59,12 +42,7 @@ PUBLIC void STEPPER_INITIALIZE(void)
    memset(STEPPER_ANGLE, 0 , MAX_NB_STEPPERS * sizeof (signed long));
    memset(STEPPER_STATE, STP_STOPPED , MAX_NB_STEPPERS * sizeof(STEPPER_SM));
    memset(STEPPER_MOVE_TIME, 0, MAX_NB_STEPPERS * sizeof(STEPPER_CONFIG));
-   #ifdef STEPPER_FAST_MOTOR
-   memset(STEPPER_FLAGS, 0 , MAX_NB_STEPPERS * sizeof(unsigned char));
-   memset(STEPPER_STEPS, 0 , MAX_NB_STEPPERS * sizeof(unsigned long));
-   #else
    memset(STEPPER_INDEX, 0, MAX_NB_STEPPERS * sizeof(unsigned char));
-   #endif
 }
 
 PUBLIC void STEPPER_MANAGE(unsigned char MotorId)
@@ -77,7 +55,6 @@ PUBLIC void STEPPER_MANAGE(unsigned char MotorId)
      {
       SEQUENCE_CCW(MotorId);
       STEPPER_MOVE_TIME[MotorId] --;
-      STEPPER_STEPS[MotorId] = 0xFFFF;
      }
      else
      {
@@ -91,7 +68,6 @@ PUBLIC void STEPPER_MANAGE(unsigned char MotorId)
      {
       SEQUENCE_CW(MotorId);
       STEPPER_MOVE_TIME[MotorId] --;
-      STEPPER_STEPS[MotorId] = 0xFFFF;
      }
      else
      {
@@ -102,22 +78,6 @@ PUBLIC void STEPPER_MANAGE(unsigned char MotorId)
    case STP_MOVING_CW:
     {
      SEQUENCE_CW(MotorId);
-     #ifdef STEPPER_FAST_MOTOR
-     if(STEPPER_ANGLE[MotorId] > 0)
-      {
-        STEPPER_STEPS[MotorId] =
-          (unsigned long)STEPPER_CONFIGS[MotorId].STEP_PER_ANGLE *
-                                      (unsigned long)STEPPER_ANGLE[MotorId];
-      }
-      else if(STEPPER_ANGLE[MotorId] < 0)
-      {
-       STEPPER_STATE[MotorId] = STP_MOVING_CCW;
-      }
-      else
-      {
-       STEPPER_STATE[MotorId] = STP_STOPPED;
-      }
-     #else
      STEPPER_INDEX[MotorId] ++;
      if(STEPPER_INDEX[MotorId] == STEPPER_CONFIGS[MotorId].STEP_PER_ANGLE)
      {
@@ -135,28 +95,11 @@ PUBLIC void STEPPER_MANAGE(unsigned char MotorId)
        STEPPER_STATE[MotorId] = STP_STOPPED;
       }
      }
-     #endif
      break;
     }
    case STP_MOVING_CCW:
     {
      SEQUENCE_CCW(MotorId);
-     #ifdef STEPPER_FAST_MOTOR
-      if(STEPPER_ANGLE[MotorId] > 0)
-      {
-       STEPPER_STATE[MotorId] = STP_MOVING_CW;
-      }
-      else if(STEPPER_ANGLE[MotorId] < 0)
-      {
-       STEPPER_STEPS[MotorId] =
-          (unsigned long)STEPPER_CONFIGS[MotorId].STEP_PER_ANGLE *
-                                      (unsigned long)(-STEPPER_ANGLE[MotorId]);
-      }
-      else
-      {
-       STEPPER_STATE[MotorId] = STP_STOPPED;
-      }
-     #else
      STEPPER_INDEX[MotorId] ++;
      if(STEPPER_INDEX[MotorId] == STEPPER_CONFIGS[MotorId].STEP_PER_ANGLE)
      {
@@ -174,15 +117,11 @@ PUBLIC void STEPPER_MANAGE(unsigned char MotorId)
        STEPPER_STATE[MotorId] = STP_STOPPED;
       }
      }
-     #endif
      break;
     }
    case STP_STOPPED:
     {
      SEQUENCE_STOP(MotorId);
-     #ifdef STEPPER_FAST_MOTOR
-     STEPPER_STEPS[MotorId] = 0;
-     #endif
      if(STEPPER_ANGLE[MotorId] > 0)
      {
       STEPPER_STATE[MotorId] = STP_MOVING_CW;
@@ -203,39 +142,6 @@ PUBLIC void STEPPER_MANAGE(unsigned char MotorId)
  
 }
 
-#ifdef STEPPER_FAST_MOTOR
-PUBLIC void STEPPER_FAST_EQUENCE(unsigned char MotorId)
-{
-  if(STEPPER_STEPS[MotorId] != 0);
-  {
-    switch(STEPPER_FLAGS[MotorId])
-    {
-     case 1:
-     {
-        STEPPER_SEQUENCE[MotorId] =
-            0xF & ((STEPPER_SEQUENCE[MotorId] << 1)|(STEPPER_SEQUENCE[MotorId] >> 3));
-        HWI_STEPPER_WRITE(MotorId,STEPPER_SEQUENCE[MotorId]);
-     }
-     break;
-     case 2:
-     {
-        STEPPER_SEQUENCE[MotorId] =
-           0x0F & ((STEPPER_SEQUENCE[MotorId] >> 1)|(STEPPER_SEQUENCE[MotorId] << 3));
-        HWI_STEPPER_WRITE(MotorId,STEPPER_SEQUENCE[MotorId]);
-     }
-     break;
-     case 0:
-     {
-        HWI_STEPPER_WRITE(MotorId,STOP_VALUE);
-     }
-     break;
-     default:
-     break;
-    }
-    STEPPER_STEPS[MotorId] --;
-  }
-}
-#endif
 
 PUBLIC void STEPPER_STOP_MOVEMENT(unsigned char MotorId)
 {
